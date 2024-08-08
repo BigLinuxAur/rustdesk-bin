@@ -44,6 +44,7 @@ optdepends=(
 options=('!strip' '!lto' '!debug')
 source=("${pkgbase%-bin}-${pkgver}-$CARCH.pkg.tar.zst::$url/releases/download/${pkgver/_/-}/rustdesk-${pkgver/_/-}-0-$CARCH.pkg.tar.zst")
 sha256sums=('SKIP')
+install=pkgbuild.install
 
 prepare() {
     sed -i "s/^\(Icon=\).*$/\1rustdesk/" "$srcdir/usr/share/rustdesk/files/rustdesk.desktop"
