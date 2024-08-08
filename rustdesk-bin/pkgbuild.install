@@ -1,7 +1,9 @@
 ## arg 1:  the new package version
-#pre_install() {
-	# do something here
-#}
+pre_install() {
+	if [ -e "/usr/share/applications/rustdesk.desktop" ];then
+		rm "/usr/share/applications/rustdesk.desktop"
+	fi
+}
 
 ## arg 1:  the new package version
 #post_install() {

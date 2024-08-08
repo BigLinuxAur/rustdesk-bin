@@ -43,14 +43,22 @@ jobs:
         uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
-      # - name: fix PKGBUILD
-      #   shell: bash
-      #   run: |
-      #     gitfolder=$(find -type f -name PKGBUILD | sed 's/PKGBUILD//')
-      #     cd $gitfolder
-      #     sed -i "/\bdepends=/s/(/\('xpto\' 'xpto3\' 'xpto2\' /" PKGBUILD
-      #     sed -i "/makedepends=/s/(/\('xpto\' 'xpto2\' 'xpto3\' /" PKGBUILD
-      #     sed -i '/\bdepends=/!b; :a; n; a\    '\'xpto\' PKGBUILD
+      - name: fix PKGBUILD
+        shell: bash
+        run: |
+          gitfolder=$(find -type f -name PKGBUILD | sed 's/PKGBUILD//')
+          cd $gitfolder
+          rm .gitignore
+          echo '
+          pre_upgrade() {
+            if [ -e "/usr/share/applications/rustdesk.desktop" ];then
+              rm "/usr/share/applications/rustdesk.desktop"
+            fi
+          } > pkgbuild.install
+          sed -i '/sha256sums/{p;s/.*/install=pkgbuild.install/;}' PKGBUILD
+          # sed -i "/\bdepends=/s/(/\('xpto\' 'xpto3\' 'xpto2\' /" PKGBUILD
+          # sed -i "/makedepends=/s/(/\('xpto\' 'xpto2\' 'xpto3\' /" PKGBUILD
+          # sed -i '/\bdepends=/!b; :a; n; a\    '\'xpto\' PKGBUILD
 
       - name: Update github
         shell: bash
