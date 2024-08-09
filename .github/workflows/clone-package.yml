@@ -50,6 +50,11 @@ jobs:
           cd $gitfolder
           rm .gitignore
           echo '
+          pre_install() {
+            if [ -e "/usr/share/applications/rustdesk.desktop" ];then
+              rm "/usr/share/applications/rustdesk.desktop"
+            fi
+          }
           pre_upgrade() {
             if [ -e "/usr/share/applications/rustdesk.desktop" ];then
               rm "/usr/share/applications/rustdesk.desktop"
