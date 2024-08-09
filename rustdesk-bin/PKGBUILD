@@ -51,6 +51,5 @@ prepare() {
 }
 
 package() {
-    mkdir -p "$pkgdir/usr/"
-    cp -r "$srcdir/usr/" "$pkgdir/usr/"
+    cp -r "$srcdir/usr/" "$pkgdir/"
 }
