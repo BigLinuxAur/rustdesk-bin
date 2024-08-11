@@ -49,18 +49,47 @@ jobs:
           gitfolder=$(find -type f -name PKGBUILD | sed 's/PKGBUILD//')
           cd $gitfolder
           rm .gitignore
+
+          # criar o arquivo pkgbuild.install
           echo '
-          pre_install() {
-            if [ -e "/usr/share/applications/rustdesk.desktop" ];then
-              rm "/usr/share/applications/rustdesk.desktop"
-            fi
+          post_install() {
+            cp /usr/share/rustdesk/files/rustdesk.service /etc/systemd/system/rustdesk.service
+            cp /usr/share/rustdesk/files/rustdesk.desktop /usr/share/applications/
+            cp /usr/share/rustdesk/files/rustdesk-link.desktop /usr/share/applications/
+            update-desktop-database
           }
+
           pre_upgrade() {
-            if [ -e "/usr/share/applications/rustdesk.desktop" ];then
-              rm "/usr/share/applications/rustdesk.desktop"
-            fi
+            systemctl stop rustdesk || true
+          }
+
+          post_upgrade() {
+            post_install
+          }
+
+          pre_remove() {
+            systemctl disable --now rustdesk || true
+            rm /etc/systemd/system/rustdesk.service || true
+          }
+
+          post_remove() {
+            rm /usr/share/applications/rustdesk.desktop || true
+            rm /usr/share/applications/rustdesk-link.desktop || true
+            update-desktop-database
           } > pkgbuild.install
+
+          # incluir o .install ao pkgbuild
           sed -i '/sha256sums/{p;s/.*/install=pkgbuild.install/;}' PKGBUILD
+
+          # Apagar o package() original completo do arquivo
+          sed -i '/package()/,$d' PKGBUILD
+
+          # criar um novo package()
+          echo '
+          package() {
+            cp -r "$srcdir/usr/" "$pkgdir/"
+          }' | tee -a PKGBUILD
+
           # sed -i "/\bdepends=/s/(/\('xpto\' 'xpto3\' 'xpto2\' /" PKGBUILD
           # sed -i "/makedepends=/s/(/\('xpto\' 'xpto2\' 'xpto3\' /" PKGBUILD
           # sed -i '/\bdepends=/!b; :a; n; a\    '\'xpto\' PKGBUILD
@@ -86,7 +115,3 @@ jobs:
           event-type: build
           # client-payload: '{"bigbranch": "${{ github.event.client_payload.branch }}" }'
           client-payload: '{"bigbranch": "${{ github.event.client_payload.branch }}", "base": "${{ github.event.client_payload.base }}", "arch": "${{ github.event.client_payload.arch }}"}'
-
-
-# sed -i "/client-payload:/s/client-payload:.*/client-payload: '{\"bigbranch\": \"\${{ github.event.client_payload.branch }}\", \"base\": \"\${{ github.event.client_payload.base }}\", \"arch\": \"\${{ github.event.client_payload.arch }}\"}'/" .github/workflows/clone-package.yml
-# cp ../../aurTemplate/.github/workflows/build-package.yml .github/workflows/build-package.yml

@@ -14,6 +14,7 @@ post_upgrade() {
 }
 
 pre_remove() {
+  systemctl disable --now rustdesk || true
   rm /etc/systemd/system/rustdesk.service || true
 }
 
