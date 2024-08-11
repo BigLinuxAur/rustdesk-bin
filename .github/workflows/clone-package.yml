@@ -76,7 +76,7 @@ jobs:
             rm /usr/share/applications/rustdesk.desktop || true
             rm /usr/share/applications/rustdesk-link.desktop || true
             update-desktop-database
-          } > pkgbuild.install
+          }' > pkgbuild.install
 
           # incluir o .install ao pkgbuild
           sed -i '/sha256sums/{p;s/.*/install=pkgbuild.install/;}' PKGBUILD
